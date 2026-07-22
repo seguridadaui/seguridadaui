@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#12382f">
+  <title>Planilla de control de Seguridad e Higiene</title>
+
+  <style>
+    :root {
+      --primary: #12382f;
+      --primary-light: #eaf4f0;
+      --primary-hover: #0c2a23;
+      --accent: #d99b19;
+      --danger: #b42318;
+      --danger-light: #fff1f0;
+      --success: #087443;
+      --success-light: #eaf8f0;
+      --warning: #8a5b00;
+      --warning-light: #fff7df;
+      --text: #18211e;
+      --muted: #61706a;
+      --border: #d5ded9;
+      --surface: #ffffff;
+      --background: #f3f6f4;
+      --shadow: 0 10px 30px rgba(16, 55, 45, 0.09);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(217, 155, 25, 0.08), transparent 32rem),
+        var(--background);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 28px auto 56px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+      padding: 28px;
+      border-radius: 20px;
+      color: #fff;
+      background: linear-gradient(135deg, #12382f, #0b241e);
+      box-shadow: var(--shadow);
+    }
+
+    .hero__eyebrow {
+      margin: 0 0 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #d8efe6;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 2.55rem);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 10px 0 0;
+      color: #d8e5e0;
+      line-height: 1.55;
+    }
+
+    .hero__badge {
+      flex: 0 0 auto;
+      min-width: 128px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero__badge strong {
+      display: block;
+      font-size: 1.5rem;
+    }
+
+    .hero__badge span {
+      color: #d8e5e0;
+      font-size: 0.84rem;
+    }
+
+    .form-card {
+      margin-top: 22px;
+      padding: 26px;
+      border: 1px solid rgba(213, 222, 217, 0.85);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section:first-child {
+      margin-top: 0;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 1.15rem;
+    }
+
+    .section-heading p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .required-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .field {
+      grid-column: span 4;
+    }
+
+    .field--half {
+      grid-column: span 6;
+    }
+
+    .field--full {
+      grid-column: 1 / -1;
+    }
+
+    label.field-label {
+      display: block;
+      margin-bottom: 7px;
+      color: #31443d;
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+
+    .required::after {
+      content: " *";
+      color: var(--danger);
+    }
+
+    input[type="text"],
+    input[type="datetime-local"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 13px;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #4d8b79;
+      box-shadow: 0 0 0 4px rgba(77, 139, 121, 0.13);
+    }
+
+    textarea {
+      min-height: 104px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .inspection {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .inspection__header,
+    .inspection-row {
+      display: grid;
+      grid-template-columns: minmax(215px, 1.1fr) minmax(245px, 0.9fr) minmax(260px, 1.3fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .inspection__header {
+      padding: 12px 15px;
+      color: #fff;
+      background: var(--primary);
+      font-size: 0.83rem;
+      font-weight: 800;
+      letter-spacing: 0.035em;
+      text-transform: uppercase;
+    }
+
+    .inspection-group {
+      border-top: 1px solid var(--border);
+    }
+
+    .inspection-group:first-of-type {
+      border-top: 0;
+    }
+
+    .inspection-group__title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 15px;
+      color: var(--primary);
+      background: var(--primary-light);
+      font-size: 0.93rem;
+      font-weight: 850;
+      letter-spacing: 0.045em;
+      text-transform: uppercase;
+    }
+
+    .inspection-group__title::before {
+      content: "";
+      width: 5px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--accent);
+    }
+
+    .inspection-row {
+      padding: 12px 15px;
+      border-top: 1px solid #e8eeeb;
+      background: #fff;
+    }
+
+    .inspection-row:nth-child(even) {
+      background: #fbfcfb;
+    }
+
+    .item-name {
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .segmented label {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .segmented label + label {
+      border-left: 1px solid var(--border);
+    }
+
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmented span {
+      display: block;
+      padding: 9px 7px;
+      text-align: center;
+      color: #52615b;
+      font-size: 0.86rem;
+      font-weight: 800;
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+
+    .segmented input[value="si"]:checked + span {
+      color: var(--success);
+      background: var(--success-light);
+    }
+
+    .segmented input[value="no"]:checked + span {
+      color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    .segmented input[value="na"]:checked + span {
+      color: var(--warning);
+      background: var(--warning-light);
+    }
+
+    .segmented input:focus-visible + span {
+      box-shadow: inset 0 0 0 3px rgba(77, 139, 121, 0.35);
+    }
+
+    .observation {
+      padding: 10px 11px !important;
+      font-size: 0.9rem;
+    }
+
+    .row-error {
+      outline: 2px solid rgba(180, 35, 24, 0.38);
+      outline-offset: -2px;
+      background: #fff8f7 !important;
+    }
+
+    .summary-box {
+      display: none;
+      margin-top: 22px;
+      padding: 17px 18px;
+      border: 1px solid #efcb7f;
+      border-radius: 12px;
+      background: var(--warning-light);
+    }
+
+    .summary-box.visible {
+      display: block;
+    }
+
+    .summary-box h3 {
+      margin: 0 0 8px;
+      color: #6f4900;
+      font-size: 1rem;
+    }
+
+    .summary-box ul {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.55;
+    }
+
+    .status {
+      display: none;
+      margin-top: 18px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .status.visible {
+      display: block;
+    }
+
+    .status--success {
+      border: 1px solid #aad6bf;
+      color: var(--success);
+      background: var(--success-light);
+    }
+
+    .status--error {
+      border: 1px solid #f0b9b4;
+      color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    .status--info {
+      border: 1px solid #c9d8d2;
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .button {
+      min-height: 46px;
+      border: 0;
+      border-radius: 11px;
+      padding: 11px 20px;
+      cursor: pointer;
+      font-weight: 850;
+      transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    .button--secondary {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .button--primary {
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .button--primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .footer-note {
+      margin: 17px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 840px) {
+      .page {
+        width: min(100% - 18px, 760px);
+        margin-top: 10px;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .hero__badge {
+        display: none;
+      }
+
+      .form-card {
+        padding: 18px;
+      }
+
+      .field,
+      .field--half {
+        grid-column: span 6;
+      }
+
+      .inspection__header {
+        display: none;
+      }
+
+      .inspection-group__title {
+        padding: 12px;
+      }
+
+      .inspection-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 14px 12px;
+      }
+
+      .item-name::before {
+        content: "Verificar: ";
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .observation {
+        min-height: 44px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero {
+        border-radius: 16px;
+      }
+
+      .hero p {
+        font-size: 0.91rem;
+      }
+
+      .form-card {
+        border-radius: 16px;
+      }
+
+      .field,
+      .field--half {
+        grid-column: 1 / -1;
+      }
+
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .required-note {
+        white-space: normal;
+      }
+
+      .actions {
+        flex-direction: column-reverse;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        width: 100%;
+        margin: 0;
+      }
+
+      .hero {
+        color: #000;
+        padding: 0 0 18px;
+        border-radius: 0;
+        background: none;
+        box-shadow: none;
+      }
+
+      .hero__eyebrow,
+      .hero p,
+      .hero__badge,
+      .actions,
+      .footer-note,
+      .status {
+        display: none !important;
+      }
+
+      .form-card {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+      }
+
+      .inspection {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="hero__eyebrow">Seguridad e Higiene</p>
+        <h1>Planilla de control</h1>
+        <p>
+          Complete los datos del vehículo y verifique cada elemento.
+          Cuando un elemento no esté disponible o no cumpla, seleccione
+          <strong>No</strong> y detalle la situación en observaciones.
+        </p>
+      </div>
+
+      <div class="hero__badge" aria-hidden="true">
+        <strong id="progressCount">0/26</strong>
+        <span>verificados</span>
+      </div>
+    </header>
+
+    <form id="inspectionForm" class="form-card" novalidate>
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <h2>Datos generales</h2>
+            <p>Información de la inspección y del vehículo.</p>
+          </div>
+          <span class="required-note">Los campos con * son obligatorios.</span>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label class="field-label required" for="vehiculo">Vehículo</label>
+            <input id="vehiculo" name="vehiculo" type="text" autocomplete="off" required>
+          </div>
+
+          <div class="field">
+            <label class="field-label required" for="patente">Patente</label>
+            <input id="patente" name="patente" type="text" autocomplete="off" required>
+          </div>
+
+          <div class="field">
+            <label class="field-label required" for="coordinador">Coordinador</label>
+            <input id="coordinador" name="coordinador" type="text" autocomplete="name" required>
+          </div>
+
+          <div class="field--half">
+            <label class="field-label required" for="chofer">Chofer</label>
+            <input id="chofer" name="chofer" type="text" autocomplete="name" required>
+          </div>
+
+          <div class="field--half">
+            <label class="field-label required" for="fecha_hora">Fecha y hora</label>
+            <input id="fecha_hora" name="fecha_hora" type="datetime-local" required>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <h2>Verificación de elementos</h2>
+            <p>Debe seleccionar Sí, No o N/A en todos los elementos.</p>
+          </div>
+        </div>
+
+        <div class="inspection">
+          <div class="inspection__header" aria-hidden="true">
+            <span>Elemento</span>
+            <span>Estado</span>
+            <span>Observaciones / estado</span>
+          </div>
+
+          <div id="inspectionRows"></div>
+        </div>
+
+        <div id="missingSummary" class="summary-box" aria-live="polite">
+          <h3>Elementos marcados como faltantes o no conformes</h3>
+          <ul id="missingList"></ul>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <h2>Conclusiones y responsables</h2>
+            <p>Detalle recomendaciones, técnicos participantes y auditor.</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="field--full">
+            <label class="field-label" for="conclusiones">Conclusiones / recomendaciones</label>
+            <textarea id="conclusiones" name="conclusiones"></textarea>
+          </div>
+
+          <div class="field--full">
+            <label class="field-label required" for="tecnicos">Técnicos</label>
+            <textarea
+              id="tecnicos"
+              name="tecnicos"
+              placeholder="Ingrese nombre y apellido de los técnicos participantes."
+              required
+            ></textarea>
+          </div>
+
+          <div class="field--full">
+            <label class="field-label required" for="auditor">Firma / nombre del auditor</label>
+            <input id="auditor" name="auditor" type="text" autocomplete="name" required>
+          </div>
+        </div>
+      </section>
+
+      <div id="formStatus" class="status" role="status" aria-live="polite"></div>
+
+      <div class="actions">
+        <button type="button" id="clearButton" class="button button--secondary">
+          Limpiar formulario
+        </button>
+        <button type="submit" id="submitButton" class="button button--primary">
+          Enviar inspección
+        </button>
+      </div>
+
+      <p class="footer-note">
+        La información se enviará al endpoint configurado en este archivo.
+      </p>
+    </form>
+  </main>
+
+  <script>
+    /*
+      Reemplace esta URL por la que entregue el Quick Tunnel, conservando
+      la ruta que luego defina en el backend. Ejemplo:
+
+      const ENDPOINT_URL =
+        "https://nombre-aleatorio.trycloudflare.com/api/inspecciones/";
+    */
+    const ENDPOINT_URL =
+      "https://globe-atmospheric-namely-cell.trycloudflare.com/api/inspecciones/";
+
+    const inspectionGroups = [
+      {
+        id: "elementos_seguridad",
+        title: "Elementos de seguridad",
+        items: [
+          ["conos", "Conos"],
+          ["soga_atar_escalera", "Soga para atar la escalera"],
+          ["soga_subir_materiales", "Soga para subir materiales"],
+          ["escalera_grande", "Escalera grande"],
+          ["escalera_chica", "Escalera chica"],
+          ["cinta_peligro", "Cinta de peligro"],
+          ["roldanas", "Roldanas"],
+          ["banderas_escalera", "Banderas para escalera"],
+          ["pertiga", "Pértiga"],
+          ["manta_dielectrica", "Manta dieléctrica"]
+        ]
+      },
+      {
+        id: "epp",
+        title: "EPP",
+        items: [
+          ["detector_tension", "Detector de tensión"],
+          ["guantes_dielectricos", "Guantes dieléctricos"],
+          ["arnes", "Arnés"],
+          ["cola_amarre_doble", "Cola de amarre doble"],
+          ["cinturon_posicionamiento", "Cinturón de posicionamiento"],
+          ["guantes", "Guantes"],
+          ["lentes", "Lentes"],
+          ["casco", "Casco"],
+          ["calzado", "Calzado"],
+          ["ropa", "Ropa"],
+          ["chaleco_refractario", "Chaleco refractario"]
+        ]
+      },
+      {
+        id: "seguridad_vehiculo",
+        title: "Seguridad del vehículo",
+        items: [
+          ["extintor", "Extintor"],
+          ["botiquin", "Botiquín"],
+          ["triangulos_balizas", "Triángulos / balizas"],
+          ["cinturon_seguridad", "Cinturón de seguridad"],
+          ["neumaticos", "Neumáticos"]
+        ]
+      }
+    ];
+
+    const inspectionRows = document.getElementById("inspectionRows");
+    const form = document.getElementById("inspectionForm");
+    const submitButton = document.getElementById("submitButton");
+    const clearButton = document.getElementById("clearButton");
+    const formStatus = document.getElementById("formStatus");
+    const missingSummary = document.getElementById("missingSummary");
+    const missingList = document.getElementById("missingList");
+    const progressCount = document.getElementById("progressCount");
+
+    const allItems = inspectionGroups.flatMap((group) =>
+      group.items.map(([id, label]) => ({
+        id,
+        label,
+        groupId: group.id,
+        groupTitle: group.title
+      }))
+    );
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderInspectionRows() {
+      inspectionRows.innerHTML = inspectionGroups.map((group) => `
+        <section class="inspection-group" data-group="${escapeHtml(group.id)}">
+          <div class="inspection-group__title">${escapeHtml(group.title)}</div>
+
+          ${group.items.map(([id, label]) => `
+            <div class="inspection-row" data-item-row="${escapeHtml(id)}">
+              <div class="item-name">${escapeHtml(label)}</div>
+
+              <div class="segmented" role="radiogroup" aria-label="${escapeHtml(label)}">
+                <label>
+                  <input type="radio" name="estado_${escapeHtml(id)}" value="si">
+                  <span>Sí</span>
+                </label>
+                <label>
+                  <input type="radio" name="estado_${escapeHtml(id)}" value="no">
+                  <span>No</span>
+                </label>
+                <label>
+                  <input type="radio" name="estado_${escapeHtml(id)}" value="na">
+                  <span>N/A</span>
+                </label>
+              </div>
+
+              <input
+                class="observation"
+                type="text"
+                name="observacion_${escapeHtml(id)}"
+                aria-label="Observaciones de ${escapeHtml(label)}"
+                placeholder="Detalle opcional"
+                autocomplete="off"
+              >
+            </div>
+          `).join("")}
+        </section>
+      `).join("");
+    }
+
+    function setCurrentDateTime() {
+      const date = new Date();
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+      document.getElementById("fecha_hora").value = date.toISOString().slice(0, 16);
+    }
+
+    function getSelectedState(itemId) {
+      return form.querySelector(`input[name="estado_${itemId}"]:checked`)?.value || "";
+    }
+
+    function updateProgressAndSummary() {
+      const selectedCount = allItems.filter((item) => getSelectedState(item.id)).length;
+      progressCount.textContent = `${selectedCount}/${allItems.length}`;
+
+      const missingItems = allItems.filter((item) => getSelectedState(item.id) === "no");
+
+      if (missingItems.length === 0) {
+        missingSummary.classList.remove("visible");
+        missingList.innerHTML = "";
+        return;
+      }
+
+      missingList.innerHTML = missingItems.map((item) => {
+        const observation = form.elements[`observacion_${item.id}`].value.trim();
+        const detail = observation ? ` — ${escapeHtml(observation)}` : "";
+        return `<li><strong>${escapeHtml(item.label)}</strong>${detail}</li>`;
+      }).join("");
+
+      missingSummary.classList.add("visible");
+    }
+
+    function showStatus(message, type) {
+      formStatus.textContent = message;
+      formStatus.className = `status status--${type} visible`;
+    }
+
+    function clearStatus() {
+      formStatus.textContent = "";
+      formStatus.className = "status";
+    }
+
+    function validateInspection() {
+      let firstInvalidRow = null;
+      let valid = true;
+
+      document.querySelectorAll(".inspection-row").forEach((row) => {
+        row.classList.remove("row-error");
+      });
+
+      for (const item of allItems) {
+        if (!getSelectedState(item.id)) {
+          valid = false;
+          const row = document.querySelector(`[data-item-row="${item.id}"]`);
+          row?.classList.add("row-error");
+          firstInvalidRow ||= row;
+        }
+      }
+
+      if (!form.checkValidity()) {
+        valid = false;
+        form.reportValidity();
+      }
+
+      if (!valid && firstInvalidRow) {
+        firstInvalidRow.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      return valid;
+    }
+
+    function buildPayload() {
+      const items = allItems.map((item) => ({
+        id: item.id,
+        elemento: item.label,
+        categoria: item.groupTitle,
+        estado: getSelectedState(item.id),
+        observacion: form.elements[`observacion_${item.id}`].value.trim()
+      }));
+
+      const tieneFaltantes = items.some((item) => item.estado === "no");
+
+      return {
+        id_control: crypto.randomUUID
+          ? crypto.randomUUID()
+          : `control-${Date.now()}`,
+        fecha_envio: new Date().toISOString(),
+        inspeccion: {
+          vehiculo: form.vehiculo.value.trim(),
+          patente: form.patente.value.trim().toUpperCase(),
+          coordinador: form.coordinador.value.trim(),
+          chofer: form.chofer.value.trim(),
+          fecha_hora: form.fecha_hora.value,
+          conclusiones: form.conclusiones.value.trim(),
+          tecnicos: form.tecnicos.value.trim(),
+          auditor: form.auditor.value.trim()
+        },
+        items,
+        faltantes: [],
+        tiene_faltantes: tieneFaltantes
+      };
+    }
+
+    async function sendInspection(payload) {
+      const response = await fetch(ENDPOINT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      let responseBody = null;
+      const contentType = response.headers.get("content-type") || "";
+
+      if (contentType.includes("application/json")) {
+        responseBody = await response.json();
+      }
+
+      if (!response.ok) {
+        const detail =
+          responseBody?.detail ||
+          responseBody?.message ||
+          `El servidor respondió con estado ${response.status}.`;
+
+        throw new Error(detail);
+      }
+
+      return responseBody;
+    }
+
+    form.addEventListener("change", (event) => {
+      if (event.target.matches('input[type="radio"]')) {
+        event.target.closest(".inspection-row")?.classList.remove("row-error");
+      }
+
+      updateProgressAndSummary();
+    });
+
+    form.addEventListener("input", (event) => {
+      if (event.target.classList.contains("observation")) {
+        updateProgressAndSummary();
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearStatus();
+
+      if (!validateInspection()) {
+        showStatus(
+          "Revise los campos obligatorios y seleccione Sí, No o N/A en todos los elementos.",
+          "error"
+        );
+        return;
+      }
+
+      const payload = buildPayload();
+
+      if (!ENDPOINT_URL.trim()) {
+        console.log("Inspección preparada:", payload);
+        showStatus(
+          "El formulario está completo, pero todavía no se configuró ENDPOINT_URL. Los datos se mostraron en la consola del navegador para realizar pruebas.",
+          "info"
+        );
+        return;
+      }
+
+      submitButton.disabled = true;
+      clearButton.disabled = true;
+      submitButton.textContent = "Enviando...";
+
+      try {
+        await sendInspection(payload);
+
+        const message = payload.tiene_faltantes
+          ? `Inspección enviada correctamente. Se registraron ${payload.items.filter(i => i.estado === "no").length} elemento(s) faltante(s) o no conforme(s).`
+          : "Inspección enviada correctamente. No se registraron faltantes.";
+
+        showStatus(message, "success");
+        form.reset();
+        setCurrentDateTime();
+        updateProgressAndSummary();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (error) {
+        console.error(error);
+        showStatus(
+          `No se pudo enviar la inspección: ${error.message}. Verifique que el Quick Tunnel y el backend estén activos.`,
+          "error"
+        );
+      } finally {
+        submitButton.disabled = false;
+        clearButton.disabled = false;
+        submitButton.textContent = "Enviar inspección";
+      }
+    });
+
+    clearButton.addEventListener("click", () => {
+      const confirmed = window.confirm(
+        "¿Desea borrar todos los datos cargados en el formulario?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      form.reset();
+      clearStatus();
+      setCurrentDateTime();
+      updateProgressAndSummary();
+      document.querySelectorAll(".inspection-row").forEach((row) => {
+        row.classList.remove("row-error");
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    renderInspectionRows();
+    setCurrentDateTime();
+    updateProgressAndSummary();
+  </script>
+</body>
+</html>
