@@ -658,17 +658,12 @@
       <section class="section">
         <div class="section-heading">
           <div>
-            <h2>Conclusiones y responsables</h2>
-            <p>Detalle recomendaciones, técnicos participantes y auditor.</p>
+            <h2>Técnicos</h2>
+            <p>Ingrese nombre y apellido de los técnicos participantes.</p>
           </div>
         </div>
 
         <div class="grid">
-          <div class="field--full">
-            <label class="field-label" for="conclusiones">Conclusiones / recomendaciones</label>
-            <textarea id="conclusiones" name="conclusiones"></textarea>
-          </div>
-
           <div class="field--full">
             <label class="field-label required" for="tecnicos">Técnicos</label>
             <textarea
@@ -677,11 +672,6 @@
               placeholder="Ingrese nombre y apellido de los técnicos participantes."
               required
             ></textarea>
-          </div>
-
-          <div class="field--full">
-            <label class="field-label required" for="auditor">Firma / nombre del auditor</label>
-            <input id="auditor" name="auditor" type="text" autocomplete="name" required>
           </div>
         </div>
       </section>
@@ -745,7 +735,7 @@
           ["casco", "Casco"],
           ["calzado", "Calzado"],
           ["ropa", "Ropa"],
-          ["chaleco_refractario", "Chaleco refractario"]
+          ["chaleco_reflectivo", "Chaleco reflectivo"]
         ]
       },
       {
@@ -868,7 +858,9 @@
     }
 
     function validateInspection() {
-      let firstInvalidRow = null;
+let formSubmitted = false;
+
+    let firstInvalidRow = null;
       let valid = true;
 
       document.querySelectorAll(".inspection-row").forEach((row) => {
@@ -918,9 +910,7 @@
           coordinador: form.coordinador.value.trim(),
           chofer: form.chofer.value.trim(),
           fecha_hora: form.fecha_hora.value,
-          conclusiones: form.conclusiones.value.trim(),
-          tecnicos: form.tecnicos.value.trim(),
-          auditor: form.auditor.value.trim()
+          tecnicos: form.tecnicos.value.trim()
         },
         items,
         faltantes: [],
@@ -993,6 +983,12 @@
         return;
       }
 
+      if (formSubmitted) {
+        showStatus("Ya se está procesando un envío. Espere por favor.", "info");
+        return;
+      }
+
+      formSubmitted = true;
       submitButton.disabled = true;
       clearButton.disabled = true;
       submitButton.textContent = "Enviando...";
@@ -1006,11 +1002,13 @@
 
         showStatus(message, "success");
         form.reset();
+        formSubmitted = false;
         setCurrentDateTime();
         updateProgressAndSummary();
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (error) {
         console.error(error);
+        formSubmitted = false;
         showStatus(
           `No se pudo enviar la inspección: ${error.message}. Verifique que el Quick Tunnel y el backend estén activos.`,
           "error"
