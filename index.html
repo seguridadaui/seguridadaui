@@ -771,6 +771,7 @@
     let userLatitud = null;
     let userLongitud = null;
     let geoResolved = false;
+    let formSubmitted = false;
 
     const geoStatus = document.getElementById("geoStatus");
     const geoText = document.getElementById("geoText");
@@ -915,9 +916,7 @@
     }
 
     function validateInspection() {
-let formSubmitted = false;
-
-    let firstInvalidRow = null;
+      let firstInvalidRow = null;
       let valid = true;
 
       document.querySelectorAll(".inspection-row").forEach((row) => {
