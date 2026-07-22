@@ -628,6 +628,14 @@
             <label class="field-label required" for="fecha_hora">Fecha y hora</label>
             <input id="fecha_hora" name="fecha_hora" type="datetime-local" required>
           </div>
+
+          <div class="field--full">
+            <label class="field-label required">Ubicación</label>
+            <div id="geoStatus" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <span id="geoText" style="color:var(--muted);font-size:0.9rem">Obteniendo ubicación...</span>
+              <button type="button" id="geoRetry" class="button button--secondary" style="min-height:auto;padding:6px 14px;font-size:0.82rem;display:none">Reintentar</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -759,6 +767,55 @@
     const missingSummary = document.getElementById("missingSummary");
     const missingList = document.getElementById("missingList");
     const progressCount = document.getElementById("progressCount");
+
+    let userLatitud = null;
+    let userLongitud = null;
+    let geoResolved = false;
+
+    const geoStatus = document.getElementById("geoStatus");
+    const geoText = document.getElementById("geoText");
+    const geoRetry = document.getElementById("geoRetry");
+
+    function requestGeolocation() {
+      geoText.textContent = "Obteniendo ubicación...";
+      geoText.style.color = "var(--muted)";
+      geoRetry.style.display = "none";
+
+      if (!navigator.geolocation) {
+        geoText.textContent = "✗ La geolocalización no está disponible en este navegador.";
+        geoText.style.color = "var(--danger)";
+        geoResolved = false;
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          userLatitud = position.coords.latitude.toFixed(6);
+          userLongitud = position.coords.longitude.toFixed(6);
+          geoResolved = true;
+          geoText.innerHTML =
+            `✓ Ubicación obtenida ` +
+            `(<a href="https://www.google.com/maps?q=${userLatitud},${userLongitud}" target="_blank" rel="noopener">ver en mapa</a>)`;
+          geoText.style.color = "var(--success)";
+        },
+        (error) => {
+          userLatitud = null;
+          userLongitud = null;
+          geoResolved = false;
+          const msg = {
+            1: "Permiso denegado. Active la ubicación en el navegador.",
+            2: "No se pudo determinar la ubicación.",
+            3: "La solicitud de ubicación expiró.",
+          }[error.code] || "Error desconocido al obtener ubicación.";
+          geoText.textContent = `✗ ${msg}`;
+          geoText.style.color = "var(--danger)";
+          geoRetry.style.display = "";
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      );
+    }
+
+    geoRetry.addEventListener("click", requestGeolocation);
 
     const allItems = inspectionGroups.flatMap((group) =>
       group.items.map(([id, label]) => ({
@@ -904,6 +961,8 @@ let formSubmitted = false;
           ? crypto.randomUUID()
           : `control-${Date.now()}`,
         fecha_envio: new Date().toISOString(),
+        latitud: userLatitud,
+        longitud: userLongitud,
         inspeccion: {
           vehiculo: form.vehiculo.value.trim(),
           patente: form.patente.value.trim().toUpperCase(),
@@ -967,6 +1026,14 @@ let formSubmitted = false;
       if (!validateInspection()) {
         showStatus(
           "Revise los campos obligatorios y seleccione Sí, No o N/A en todos los elementos.",
+          "error"
+        );
+        return;
+      }
+
+      if (!geoResolved) {
+        showStatus(
+          "Debe permitir la geolocalización para enviar la inspección.",
           "error"
         );
         return;
@@ -1042,6 +1109,7 @@ let formSubmitted = false;
     renderInspectionRows();
     setCurrentDateTime();
     updateProgressAndSummary();
+    requestGeolocation();
   </script>
 </body>
 </html>
