@@ -533,6 +533,95 @@
       }
     }
 
+    /* ── Modal ─────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      padding: 20px;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(480px, 100%);
+      border-radius: 20px;
+      padding: 32px 28px 24px;
+      background: #fff;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+      from { transform: scale(0.92) translateY(16px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .modal-icon--success {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .modal-icon--error {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .modal-icon--loading {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .modal-icon--loading::after {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .modal-box h3 {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 1.15rem;
+    }
+
+    .modal-box p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .modal-box .button {
+      min-width: 140px;
+    }
+
     @media print {
       body {
         background: #fff;
@@ -701,6 +790,16 @@
     </form>
   </main>
 
+  <!-- ── Modal ──────────────────────────────────────────── -->
+  <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <div id="modalIcon" class="modal-icon"></div>
+      <h3 id="modalTitle">Enviando...</h3>
+      <p id="modalMessage">Espere un momento.</p>
+      <button type="button" id="modalButton" class="button button--primary" style="display:none">Cerrar</button>
+    </div>
+  </div>
+
   <script>
     /*
       Reemplace esta URL por la que entregue el Quick Tunnel, conservando
@@ -815,6 +914,32 @@
         { enableHighAccuracy: true, timeout: 30000, maximumAge: 600000 }
       );
     }
+
+    // ── Modal ─────────────────────────────────────────────────
+    const modalOverlay = document.getElementById("modalOverlay");
+    const modalIcon = document.getElementById("modalIcon");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMessage = document.getElementById("modalMessage");
+    const modalButton = document.getElementById("modalButton");
+
+    function showModal(type, title, message, buttonText = "Cerrar") {
+      modalIcon.className = `modal-icon modal-icon--${type}`;
+      modalIcon.textContent = type === "success" ? "✓" : type === "error" ? "✗" : "";
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      modalButton.textContent = buttonText;
+      modalButton.style.display = type === "loading" ? "none" : "";
+      modalOverlay.classList.add("visible");
+    }
+
+    function hideModal() {
+      modalOverlay.classList.remove("visible");
+    }
+
+    modalButton.addEventListener("click", hideModal);
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) hideModal();
+    });
 
     geoRetry.addEventListener("click", requestGeolocation);
 
@@ -977,13 +1102,20 @@
     }
 
     async function sendInspection(payload) {
-      const response = await fetch(ENDPOINT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+      let response;
+      try {
+        response = await fetch(ENDPOINT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+      } catch (netError) {
+        throw new Error(
+          "No se pudo conectar con el servidor. Verifique que el túnel de Cloudflare esté activo y su conexión a internet."
+        );
+      }
 
       let responseBody = null;
       const contentType = response.headers.get("content-type") || "";
@@ -1021,65 +1153,61 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       clearStatus();
+      hideModal();
 
       if (!validateInspection()) {
-        showStatus(
-          "Revise los campos obligatorios y seleccione Sí, No o N/A en todos los elementos.",
-          "error"
-        );
+        showModal("error", "Campos incompletos",
+          "Revise los campos obligatorios y seleccione Sí, No o N/A en todos los elementos.");
         return;
       }
 
       if (!geoResolved) {
-        showStatus(
-          "Debe permitir la geolocalización para enviar la inspección.",
-          "error"
-        );
+        showModal("error", "Ubicación requerida",
+          "Debe permitir la geolocalización para enviar la inspección.");
         return;
       }
 
-      const payload = buildPayload();
-
       if (!ENDPOINT_URL.trim()) {
+        const payload = buildPayload();
         console.log("Inspección preparada:", payload);
-        showStatus(
-          "El formulario está completo, pero todavía no se configuró ENDPOINT_URL. Los datos se mostraron en la consola del navegador para realizar pruebas.",
-          "info"
-        );
+        showModal("info", "Endpoint no configurado",
+          "END POINT_URL está vacío. Los datos se mostraron en la consola.");
         return;
       }
 
       if (formSubmitted) {
-        showStatus("Ya se está procesando un envío. Espere por favor.", "info");
+        showModal("error", "Envío en curso",
+          "Ya se está procesando un envío. Espere por favor.");
         return;
       }
 
+      const payload = buildPayload();
       formSubmitted = true;
-      submitButton.disabled = true;
-      clearButton.disabled = true;
-      submitButton.textContent = "Enviando...";
+
+      showModal("loading", "Enviando inspección...",
+        "Espere un momento mientras se envía la información.");
 
       try {
-        await sendInspection(payload);
+        const result = await sendInspection(payload);
 
-        const message = payload.tiene_faltantes
-          ? `Inspección enviada correctamente. Se registraron ${payload.items.filter(i => i.estado === "no").length} elemento(s) faltante(s) o no conforme(s).`
-          : "Inspección enviada correctamente. No se registraron faltantes.";
+        const cant = payload.items.filter(i => i.estado === "no").length;
+        const msg = payload.tiene_faltantes
+          ? `Se registraron ${cant} elemento(s) faltante(s) o no conforme(s). Se enviaron las alertas por correo.`
+          : "No se registraron faltantes. La inspección se guardó correctamente.";
 
-        showStatus(message, "success");
+        showModal("success", "Inspección enviada ✓", msg);
         form.reset();
-        formSubmitted = false;
         setCurrentDateTime();
         updateProgressAndSummary();
-        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (error) {
         console.error(error);
-        formSubmitted = false;
-        showStatus(
-          `No se pudo enviar la inspección: ${error.message}. Verifique que el Quick Tunnel y el backend estén activos.`,
-          "error"
-        );
+        const detalle = error.message.includes("ya fue registrada")
+          ? "Esta inspección ya fue registrada anteriormente. No se envió duplicado."
+          : error.message;
+        showModal("error", "Error al enviar",
+          `${detalle}\n\nVerifique la conexión e intente nuevamente.`);
       } finally {
+        formSubmitted = false;
         submitButton.disabled = false;
         clearButton.disabled = false;
         submitButton.textContent = "Enviar inspección";
@@ -1095,6 +1223,7 @@
         return;
       }
 
+      hideModal();
       form.reset();
       clearStatus();
       setCurrentDateTime();
