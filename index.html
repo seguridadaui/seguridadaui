@@ -1069,7 +1069,34 @@
       return valid;
     }
 
-    function buildPayload() {
+    async function generarIdControl(items) {
+      // Fingerprint estable del formulario: mismo contenido = mismo id_control.
+      // Así el backend rechaza envíos duplicados del mismo formulario (409).
+      const base = [
+        form.patente.value.trim().toUpperCase(),
+        form.fecha_hora.value,
+        items.map((i) => `${i.elemento}:${i.estado}:${i.observacion}`).join("|")
+      ].join("||");
+
+      if (crypto.subtle && crypto.subtle.digest) {
+        try {
+          const buf = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(base)
+          );
+          const hash = Array.from(new Uint8Array(buf))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+          return `insp-${hash.slice(0, 32)}`;
+        } catch (e) {
+          // fallback si no hay WebCrypto
+        }
+      }
+      // Fallback simple (patente + fecha + timestamp corto)
+      return `insp-${base.replace(/[^a-z0-9]/gi, "").slice(0, 32)}-${Date.now() % 100000}`;
+    }
+
+    async function buildPayload() {
       const items = allItems.map((item) => ({
         id: item.id,
         elemento: item.label,
@@ -1079,11 +1106,10 @@
       }));
 
       const tieneFaltantes = items.some((item) => item.estado === "no");
+      const idControl = await generarIdControl(items);
 
       return {
-        id_control: crypto.randomUUID
-          ? crypto.randomUUID()
-          : `control-${Date.now()}`,
+        id_control: idControl,
         fecha_envio: new Date().toISOString(),
         latitud: userLatitud,
         longitud: userLongitud,
@@ -1168,7 +1194,7 @@
       }
 
       if (!ENDPOINT_URL.trim()) {
-        const payload = buildPayload();
+        const payload = await buildPayload();
         console.log("Inspección preparada:", payload);
         showModal("info", "Endpoint no configurado",
           "END POINT_URL está vacío. Los datos se mostraron en la consola.");
@@ -1181,8 +1207,8 @@
         return;
       }
 
-      const payload = buildPayload();
       formSubmitted = true;
+      const payload = await buildPayload();
 
       showModal("loading", "Enviando inspección...",
         "Espere un momento mientras se envía la información.");
