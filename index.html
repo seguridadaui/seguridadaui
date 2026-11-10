@@ -802,14 +802,10 @@
 
   <script>
     /*
-      Reemplace esta URL por la que entregue el Quick Tunnel, conservando
-      la ruta que luego defina en el backend. Ejemplo:
-
-      const ENDPOINT_URL =
-        "https://nombre-aleatorio.trycloudflare.com/api/inspecciones/";
+      Endpoint HTTPS estable publicado por el gateway de Seguridad Laboral.
     */
     const ENDPOINT_URL =
-      "https://globe-atmospheric-namely-cell.trycloudflare.com/api/inspecciones/";
+      "https://gwaui.sanluis.gov.ar/seguridad/api/inspecciones/";
 
     const inspectionGroups = [
       {
@@ -1139,7 +1135,7 @@
         });
       } catch (netError) {
         throw new Error(
-          "No se pudo conectar con el servidor. Verifique que el túnel de Cloudflare esté activo y su conexión a internet."
+          "No se pudo conectar con el servidor de Seguridad Laboral. Verifique su conexión a internet e intente nuevamente."
         );
       }
 
